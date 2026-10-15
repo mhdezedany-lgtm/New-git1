@@ -1,0 +1,95 @@
+// משחק X O בסיסי ב-JavaScript (לקונסול)
+
+const readline = require('readline').createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+const board = [
+    [' ', ' ', ' '],
+    [' ', ' ', ' '],
+    [' ', ' ', ' ']
+];
+
+let currentPlayer = 'X';
+
+function printBoard() {
+    console.log('\n');
+    board.forEach((row, i) => {
+        console.log(' ' + row.join(' | '));
+        if (i < 2) console.log('---+---+---');
+    });
+    console.log('\n');
+}
+
+function isWinner(player) {
+    // שורות ועמודות
+    for (let i = 0; i < 3; i++) {
+        if (
+            board[i][0] === player &&
+            board[i][1] === player &&
+            board[i][2] === player
+        ) return true;
+        if (
+            board[0][i] === player &&
+            board[1][i] === player &&
+            board[2][i] === player
+        ) return true;
+    }
+    // אלכסונים
+    if (
+        board[0][0] === player &&
+        board[1][1] === player &&
+        board[2][2] === player
+    ) return true;
+    if (
+        board[0][2] === player &&
+        board[1][1] === player &&
+        board[2][0] === player
+    ) return true;
+
+    return false;
+}
+
+function isBoardFull() {
+    for (let row of board) {
+        for (let cell of row) {
+            if (cell === ' ') return false;
+        }
+    }
+    return true;
+}
+
+function askMove() {
+    printBoard();
+    readline.question(`שחקן ${currentPlayer}, בחר משבצת (שורה, עמודה מ-1 עד 3. לדוג׳: 2 3): `, (input) => {
+        let [row, col] = input.trim().split(' ').map(Number);
+        if (
+            isNaN(row) || isNaN(col) ||
+            row < 1 || row > 3 ||
+            col < 1 || col > 3 ||
+            board[row-1][col-1] !== ' '
+        ) {
+            console.log('קלט לא חוקי, נסה שוב.');
+            askMove();
+            return;
+        }
+        board[row-1][col-1] = currentPlayer;
+
+        if (isWinner(currentPlayer)) {
+            printBoard();
+            console.log(`שחקן ${currentPlayer} ניצח!`);
+            readline.close();
+        } else if (isBoardFull()) {
+            printBoard();
+            console.log('תיקו!');
+            readline.close();
+        } else {
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            askMove();
+        }
+    });
+}
+
+console.log('ברוכים הבאים למשחק איקס עיגול!');
+askMove();
